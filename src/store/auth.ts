@@ -1,17 +1,20 @@
 import { defineStore } from 'pinia'
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 import { type Login } from '@/types'
-import { signInWithPassword, signOut } from '@/services/auth'
-// import { useStorage } from '@/composables/useStorage'
+import { signInWithPassword, signOut, getUser } from '@/services/auth'
+import type { User as UserSupabase } from '@supabase/supabase-js'
+import { useRouter } from 'vue-router'
 
-interface UserSession {
-  id: string
-  email: string
-  role: string
-}
+const router = useRouter()
+
+// interface UserSession {
+//   id: string
+//   email: string
+//   role: string
+// }
 
 export const useAuth = defineStore('auth', () => {
-  const user = ref<UserSession | null>(null)
+  const user = ref<UserSupabase | null>(null)
   // const { data: user, clear: clearUser } = useStorage<UserSession | null>('user', null)
 
   const accessToken = ref<string | null>(null)
@@ -20,10 +23,10 @@ export const useAuth = defineStore('auth', () => {
   const signIn = async (authData: Login) => {
     try {
       loading.value = true
-      const { userData, session } = await signInWithPassword(authData)
+      const { data, session } = await signInWithPassword(authData)
       accessToken.value = session
-      user.value = userData
-      return userData
+      user.value = data
+      return data
     } catch (error) {
       console.log('err', error)
     } finally {
@@ -31,17 +34,28 @@ export const useAuth = defineStore('auth', () => {
     }
   }
 
-  const logOut = () => {
-    accessToken.value = null
+  const logOut = async () => {
+    // accessToken.value = null
     // clearUser()
-    signOut()
+    await signOut()
+    user.value = null
   }
+  const loadSession = async () => {
+    const { user: data, error } = await getUser()
+    user.value = data
+    console.log('err1', error)
+    if (error) return null
+    return data
+  }
+  const isAuthenticated = computed(() => user.value !== null)
 
   return {
     user,
     accessToken,
+    isAuthenticated,
     loading,
     signIn,
     logOut,
+    loadSession,
   }
 })

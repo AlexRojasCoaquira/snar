@@ -54,7 +54,7 @@ const router = useRouter()
 
 const submit = async () => {
   const res = await authStore.signIn(auth)
-  if (res) router.push('/')
+  if (res) router.push('/users')
 }
 </script>
 

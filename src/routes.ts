@@ -12,10 +12,13 @@ import NotFound from '@/pages/NotFound.vue'
 import AuthLayout from '@/layouts/AuthLayout.vue'
 import DefaultLayout from '@/layouts/DefaultLayout.vue'
 
+import { useAuth } from './store/auth'
+
 const routes = [
   {
     path: '/auth',
     component: AuthLayout,
+    meta: { requiresGuest: true },
     children: [
       {
         name: 'login',
@@ -27,15 +30,12 @@ const routes = [
         name: 'register',
         component: Register,
       },
-      // {
-      //   path: 'forgot',
-      //   component: Forgot,
-      // },
     ],
   },
   {
     path: '/',
     component: DefaultLayout,
+    meta: { requiresAuth: true },
     children: [
       {
         name: 'home',
@@ -64,4 +64,18 @@ const routes = [
 export const router = createRouter({
   history: createWebHistory(),
   routes,
+})
+
+router.beforeEach(async (to, from, next) => {
+  const authStore = useAuth()
+  console.log('authStore.user', authStore.user)
+  if (authStore.user === null) await authStore.loadSession()
+  console.log('gaa')
+  if (to.meta.requiresAuth && !authStore.isAuthenticated) {
+    next({ name: 'login' })
+  } else if (to.meta.requiresGuest && authStore.isAuthenticated) {
+    next({ name: 'home' })
+  } else {
+    next()
+  }
 })
