@@ -4,7 +4,7 @@
     <Button type="button" variant="secondary" size="sm" @click="logOut">Cerrar Sesión</Button>
   </header>
 </template>
-<script setup>
+<script setup lang="ts">
 import Button from '@/components/base/Button.vue'
 import { useAuth } from '@/store/auth'
 import { useRouter } from 'vue-router'
