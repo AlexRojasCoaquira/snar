@@ -3,19 +3,9 @@ import { ref, computed } from 'vue'
 import { type Login } from '@/types'
 import { signInWithPassword, signOut, getUser } from '@/services/auth'
 import type { User as UserSupabase } from '@supabase/supabase-js'
-import { useRouter } from 'vue-router'
-
-const router = useRouter()
-
-// interface UserSession {
-//   id: string
-//   email: string
-//   role: string
-// }
 
 export const useAuth = defineStore('auth', () => {
   const user = ref<UserSupabase | null>(null)
-  // const { data: user, clear: clearUser } = useStorage<UserSession | null>('user', null)
 
   const accessToken = ref<string | null>(null)
   const loading = ref(false)
@@ -35,8 +25,6 @@ export const useAuth = defineStore('auth', () => {
   }
 
   const logOut = async () => {
-    // accessToken.value = null
-    // clearUser()
     await signOut()
     user.value = null
   }

@@ -1,21 +1,25 @@
 // import data from '../mock/data.json'
-import { onMounted, reactive, ref } from 'vue'
+import { onMounted, onUnmounted, reactive, ref } from 'vue'
 import type { UserWithId, User } from '../types'
 import { getUser, createUser, removeUser, updateUser } from '@/services/users'
+import { usePaginate } from './usePaginate'
+import { useRealtime } from './useRealtime'
 
 export const useUsers = () => {
+  const { paginate, setTotalPages, setPage } = usePaginate()
   const users = reactive<UserWithId[]>([])
+  const { subscribe, unsubscribe } = useRealtime<UserWithId>('users', users)
   const loading = ref(false)
   const load = ref(false)
   const errors = ref('')
 
-  // const generateId = () => Date.now() + Math.floor(Math.random() * 1000)
-
-  const getAllUsers = async () => {
+  const getAllUsers = async (page?: number) => {
     try {
       load.value = true
-      const res = await getUser()
-      users.splice(0, users.length, ...res)
+      const newPage = page || paginate.page
+      const res = await getUser({ page: newPage, perPage: paginate.perPage })
+      users.splice(0, users.length, ...res.data)
+      setTotalPages(res.totalPages)
       // users.push(...res)
     } catch (error) {
       console.log(error)
@@ -76,8 +80,13 @@ export const useUsers = () => {
     }
   }
 
-  onMounted(() => {
-    getAllUsers()
+  onMounted(async () => {
+    await getAllUsers()
+    subscribe()
+  })
+
+  onUnmounted(() => {
+    unsubscribe()
   })
 
   return {
@@ -88,5 +97,8 @@ export const useUsers = () => {
     loading,
     load,
     errors,
+    paginate,
+    setPage,
+    getAllUsers,
   }
 }

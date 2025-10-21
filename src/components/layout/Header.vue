@@ -1,7 +1,9 @@
 <template>
-  <header class="col-start-2 bg-gray-850 p-4 border-b border-gray-700">
-    <h1 class="text-2xl font-semibold">Dashboard</h1>
-    <Button type="button" variant="secondary" size="sm" @click="logOut">Cerrar Sesión</Button>
+  <header class="col-start-2 bg-gray-850 px-6 py-4 border-b border-gray-700">
+    <div class="flex justify-between max-w-6xl mx-auto w-full px-4">
+      <p class="text-2xl font-semibold">Dashboard</p>
+      <Button type="button" variant="secondary" size="sm" @click="logOut">Cerrar Sesión</Button>
+    </div>
   </header>
 </template>
 <script setup lang="ts">

@@ -17,10 +17,14 @@ const headers = {
 //   }).then((res) => res.json())
 // }
 
-export const getUser = async (): Promise<UserWithId[]> => {
-  const { data, error } = await supabase.from('users').select('*').range(0, 9)
+export const getUser = async ({ perPage, page }: { perPage: number; page: number }) => {
+  const { data, error, count } = await supabase
+    .from('users')
+    .select('*', { count: 'exact' })
+    .range((page - 1) * perPage, page * perPage - 1)
+  console.log('count', count)
   if (error) throw error
-  return data || []
+  return { data, totalItems: count, totalPages: count ? Math.ceil(count / perPage) : 0 }
 }
 
 export const createUser = async (user: User) => {
