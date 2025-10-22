@@ -7,6 +7,8 @@ import Products from '@/pages/Products.vue'
 
 import Login from '@/pages/auth/Login.vue'
 import Register from '@/pages/auth/Register.vue'
+import Forgot from '@/pages/auth/Forgot.vue'
+
 import NotFound from '@/pages/NotFound.vue'
 
 import AuthLayout from '@/layouts/AuthLayout.vue'
@@ -29,6 +31,11 @@ const routes = [
         path: 'sign-up',
         name: 'register',
         component: Register,
+      },
+      {
+        path: 'forgot',
+        name: 'forgot',
+        component: Forgot,
       },
     ],
   },

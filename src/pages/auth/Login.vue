@@ -3,6 +3,17 @@
     @submit.prevent="submit"
     class="bg-white p-4 rounded-md ring-1 ring-gray-400 w-full max-w-md"
   >
+    <picture class="flex justify-center">
+      <source srcset="/logo.svg" media="(min-width: 640px)" type="image/svg+xml" />
+      <img src="/logo-mob.svg" alt="logo" />
+    </picture>
+    <p class="text-sm text-gray-700 text-center my-3">
+      ¿Eres nuevo aquí?
+      <RouterLink to="/auth/sign-up" class="font-semibold hover:underline cursor-pointer">
+        Crea una cuenta
+      </RouterLink>
+    </p>
+
     <h2 class="text-gray-600 text-center uppercase font-bold text-xl">Iniciar sesión</h2>
     <Input
       v-model="auth.email"
@@ -25,8 +36,8 @@
     <Button type="submit" variant="primary" size="md" class="w-full mt-5">
       {{ loading ? 'Cargando' : 'Iniciar sesión' }}
     </Button>
-    <RouterLink to="/auth/sign-up">
-      <p class="text-sm mt-2 font-semibold hover:underline cursor-pointer">
+    <RouterLink to="/auth/forgot">
+      <p class="text-sm mt-2 font-semibold hover:underline cursor-pointer text-right">
         ¿Olvidaste tu contraseña?
       </p>
     </RouterLink>

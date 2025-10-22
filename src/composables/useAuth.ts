@@ -18,8 +18,15 @@ export const useAuth = () => {
     return data
   }
 
+  const resetPassword = async (email: string) => {
+    const { data, error } = await supabase.auth.resetPasswordForEmail(email)
+    console.log('data', data)
+    return data
+  }
+
   return {
     signUp,
     signInWithPassword,
+    resetPassword,
   }
 }
