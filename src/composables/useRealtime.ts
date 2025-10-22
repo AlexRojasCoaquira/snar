@@ -18,14 +18,14 @@ export const useRealtime = <T extends { id: number }>(
         if (payload.eventType === 'INSERT') {
           items.push(payload.new)
         }
-        if (payload.eventType === 'UPDATE') {
-          const index = items.findIndex((item) => item.id === payload.new.id)
-          if (index !== -1) items[index] = payload.new
-        }
-        if (payload.eventType === 'DELETE') {
-          const index = items.findIndex((item) => item.id === payload.old.id)
-          if (index !== -1) items.splice(index, 1)
-        }
+        // if (payload.eventType === 'UPDATE') {
+        //   const index = items.findIndex((item) => item.id === payload.new.id)
+        //   if (index !== -1) items[index] = payload.new
+        // }
+        // if (payload.eventType === 'DELETE') {
+        //   const index = items.findIndex((item) => item.id === payload.old.id)
+        //   if (index !== -1) items.splice(index, 1)
+        // }
 
         if (onChange) onChange(payload)
       })

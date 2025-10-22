@@ -13,7 +13,7 @@
     <tbody class="divide-y text-center text-gray-700">
       <tr class="odd:bg-gray-300 [&>*]:p-3" v-for="user of users" :key="user.id">
         <td>{{ user.id }}</td>
-        <td>{{ user.name }}</td>
+        <td>{{ user.firstname }}</td>
         <td>{{ user.lastname }}</td>
         <td>{{ user.email }}</td>
         <td>{{ user.phone }}</td>

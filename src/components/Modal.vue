@@ -16,10 +16,10 @@
           id="name"
           type="text"
           placeholder="Ingrese el nombre"
-          v-bind="nameAttrs"
-          v-model="name"
+          v-bind="firstnameAttrs"
+          v-model="firstname"
           required
-          :error="errors.name"
+          :error="errors.firstname"
           v-sanitize="'letters'"
           max="50"
         />
@@ -87,7 +87,7 @@ configure({
   validateOnModelUpdate: true,
 })
 const schema = yup.object({
-  name: yup
+  firstname: yup
     .string()
     .max(50, 'asd')
     .matches(/^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]+$/, 'Solo letras')
@@ -105,7 +105,7 @@ const { values, setValues, handleSubmit, resetForm, errors, defineField } = useF
   initialValues: { ...props.user },
 })
 
-const [name, nameAttrs] = defineField<string>('name')
+const [firstname, firstnameAttrs] = defineField<string>('firstname')
 const [lastname, lastnameAttrs] = defineField<string>('lastname')
 const [email, emailAttrs] = defineField<string>('email')
 const [phone, phoneAttrs] = defineField<string>('phone')
@@ -113,7 +113,7 @@ const [phone, phoneAttrs] = defineField<string>('phone')
 watch(
   () => props.user,
   (newUser) => {
-    setValues({ ...newUser }) // llenar con datos
+    setValues({ ...newUser })
     // Object.assign(userLocal, { ...newUser })
   },
   { immediate: true, deep: true },

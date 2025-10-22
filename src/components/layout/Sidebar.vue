@@ -24,7 +24,6 @@ import { computed } from 'vue'
 
 const router = useRouter()
 const route = useRoute()
-console.log('route', router.getRoutes())
 const dashboardRoutes = computed(() => {
   const main = router.getRoutes().find((r) => r.path === '/')
   return main?.children?.filter((r) => r.name) || []

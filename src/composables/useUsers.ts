@@ -2,24 +2,31 @@
 import { onMounted, onUnmounted, reactive, ref } from 'vue'
 import type { UserWithId, User } from '../types'
 import { getUser, createUser, removeUser, updateUser } from '@/services/users'
-import { usePaginate } from './usePaginate'
 import { useRealtime } from './useRealtime'
+import { useFilters } from '@/store/filters'
+import { usePaginate } from '@/store/paginate'
 
 export const useUsers = () => {
+  const { filters } = useFilters()
   const { paginate, setTotalPages, setPage } = usePaginate()
+
   const users = reactive<UserWithId[]>([])
   const { subscribe, unsubscribe } = useRealtime<UserWithId>('users', users)
+
   const loading = ref(false)
   const load = ref(false)
   const errors = ref('')
 
-  const getAllUsers = async (page?: number) => {
+  const getAllUsers = async () => {
     try {
       load.value = true
-      const newPage = page || paginate.page
-      const res = await getUser({ page: newPage, perPage: paginate.perPage })
-      users.splice(0, users.length, ...res.data)
-      setTotalPages(res.totalPages)
+      const { totalPages, data } = await getUser({
+        page: paginate.page,
+        perPage: paginate.perPage,
+        search: filters.search,
+      })
+      users.splice(0, users.length, ...data)
+      setTotalPages(totalPages)
       // users.push(...res)
     } catch (error) {
       console.log(error)
@@ -32,15 +39,17 @@ export const useUsers = () => {
     try {
       if (!user) return
       loading.value = true
-      const { name, lastname, phone, email } = user
+      const { firstname, lastname, phone, email } = user
       // const newUser: UserWithId = { ...user, id: generateId() }
-      const res = await createUser({
-        name,
+      await createUser({
+        firstname,
         lastname,
         phone,
         email,
       })
-      users.push(res[0])
+      setPage(1)
+      await getAllUsers()
+      // users.push(res[0])
     } catch (error) {
       console.log(error)
     } finally {
@@ -53,10 +62,10 @@ export const useUsers = () => {
       if (!id) return false
       loading.value = true
       const res = await removeUser(id)
-      console.log('respues', res)
       if (res) {
         const userIndex = users.findIndex((u) => u.id === id)
         if (userIndex !== -1) users.splice(userIndex, 1)
+        // await getAllUsers(paginate.page)
       }
     } catch (error) {
       console.log(error)
@@ -70,7 +79,7 @@ export const useUsers = () => {
       if (!user) return
       loading.value = true
       const res = await updateUser(user)
-      console.log('res upodatre', res[0])
+      if (!res || res.length === 0) return
       const userIndex = users.findIndex((u) => u.id === user.id)
       if (userIndex !== -1) users[userIndex] = { ...users[userIndex], ...res[0] }
     } catch (error) {
@@ -98,7 +107,6 @@ export const useUsers = () => {
     load,
     errors,
     paginate,
-    setPage,
     getAllUsers,
   }
 }

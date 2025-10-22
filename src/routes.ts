@@ -68,9 +68,7 @@ export const router = createRouter({
 
 router.beforeEach(async (to, from, next) => {
   const authStore = useAuth()
-  console.log('authStore.user', authStore.user)
   if (authStore.user === null) await authStore.loadSession()
-  console.log('gaa')
   if (to.meta.requiresAuth && !authStore.isAuthenticated) {
     next({ name: 'login' })
   } else if (to.meta.requiresGuest && authStore.isAuthenticated) {
