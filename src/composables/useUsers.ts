@@ -1,6 +1,6 @@
 // import data from '../mock/data.json'
-import { onMounted, onUnmounted, reactive, ref } from 'vue'
-import type { UserWithId, User } from '../types'
+import { reactive, ref } from 'vue'
+import type { UserWithId } from '../types'
 import { getUser, createUser, removeUser, updateUser } from '@/services/users'
 import { useRealtime } from './useRealtime'
 import { useFilters } from '@/store/filters'
@@ -12,7 +12,6 @@ export const useUsers = () => {
 
   const users = reactive<UserWithId[]>([])
   const { subscribe, unsubscribe } = useRealtime<UserWithId>('users', users)
-
   const loading = ref(false)
   const load = ref(false)
   const errors = ref('')
@@ -35,18 +34,13 @@ export const useUsers = () => {
     }
   }
 
-  const addUser = async (user: User) => {
+  const addUser = async (user: UserWithId, isLogin = false) => {
     try {
       if (!user) return
       loading.value = true
-      const { firstname, lastname, phone, email } = user
-      // const newUser: UserWithId = { ...user, id: generateId() }
-      await createUser({
-        firstname,
-        lastname,
-        phone,
-        email,
-      })
+
+      await createUser(user)
+      if (isLogin) return
       setPage(1)
       await getAllUsers()
       // users.push(res[0])
@@ -57,7 +51,7 @@ export const useUsers = () => {
     }
   }
 
-  const deleteUser = async (id: number) => {
+  const deleteUser = async (id: string) => {
     try {
       if (!id) return false
       loading.value = true
@@ -66,6 +60,7 @@ export const useUsers = () => {
         const userIndex = users.findIndex((u) => u.id === id)
         if (userIndex !== -1) users.splice(userIndex, 1)
         // await getAllUsers(paginate.page)
+        return true
       }
     } catch (error) {
       console.log(error)
@@ -82,6 +77,7 @@ export const useUsers = () => {
       if (!res || res.length === 0) return
       const userIndex = users.findIndex((u) => u.id === user.id)
       if (userIndex !== -1) users[userIndex] = { ...users[userIndex], ...res[0] }
+      return true
     } catch (error) {
       console.log(error)
     } finally {
@@ -89,14 +85,13 @@ export const useUsers = () => {
     }
   }
 
-  onMounted(async () => {
-    await getAllUsers()
-    subscribe()
-  })
+  // onMounted(async () => {
+  //   subscribe()
+  // })
 
-  onUnmounted(() => {
-    unsubscribe()
-  })
+  // onUnmounted(() => {
+  //   unsubscribe()
+  // })
 
   return {
     users,
@@ -108,5 +103,7 @@ export const useUsers = () => {
     errors,
     paginate,
     getAllUsers,
+    subscribe,
+    unsubscribe,
   }
 }

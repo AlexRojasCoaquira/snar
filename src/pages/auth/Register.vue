@@ -65,6 +65,7 @@ import Button from '@/components/base/Button.vue'
 import { reactive } from 'vue'
 import { useAuth } from '@/composables/useAuth'
 import { useUsers } from '@/composables/useUsers'
+import { useRouter } from 'vue-router'
 
 interface Register {
   email: string
@@ -72,7 +73,7 @@ interface Register {
   firstname: string
   lastname: string
   phone: string
-  // gender: string
+  birthdate?: string
 }
 
 const defaultAuth: Register = {
@@ -80,24 +81,34 @@ const defaultAuth: Register = {
   password: '',
   firstname: '',
   lastname: '',
-  // gender: '',
+  birthdate: '',
   phone: '',
 }
 
 const { signUp } = useAuth()
 const auth = reactive<Register>({ ...defaultAuth })
 const { addUser } = useUsers()
+const router = useRouter()
 
 const submit = async () => {
-  const res = await signUp(auth)
+  const res = await signUp({
+    email: auth.email,
+    password: auth.password,
+  })
+  console.log('Registration response:', res.user)
   if (res.user) {
-    const response = await addUser({
-      email: auth.email,
-      firstname: auth.firstname,
-      lastname: auth.lastname,
-      phone: auth.phone,
-    })
-    console.log('User added:', response)
+    const response = await addUser(
+      {
+        id: res.user.id,
+        firstname: auth.firstname,
+        lastname: auth.lastname,
+        phone: auth.phone,
+        birthdate: auth.birthdate,
+      },
+      true,
+    )
+    console.log('User added to database:', response)
+    router.push('/auth')
   }
 }
 </script>

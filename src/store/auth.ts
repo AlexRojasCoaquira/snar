@@ -9,9 +9,15 @@ export const useAuth = defineStore('auth', () => {
 
   const accessToken = ref<string | null>(null)
   const loading = ref(false)
+  const errors = ref('')
 
   const signIn = async (authData: Login) => {
     try {
+      const { email, password } = authData
+      if (email === '' || password === '') {
+        errors.value = 'Email y contraseña son obligatorios'
+        return
+      }
       loading.value = true
       const { data, session } = await signInWithPassword(authData)
       accessToken.value = session
@@ -19,6 +25,7 @@ export const useAuth = defineStore('auth', () => {
       return data
     } catch (error) {
       console.log('err', error)
+      errors.value = (error as Error).message || 'Error al iniciar sesión'
     } finally {
       loading.value = false
     }
@@ -35,13 +42,15 @@ export const useAuth = defineStore('auth', () => {
     if (error) return null
     return data
   }
+
   const isAuthenticated = computed(() => user.value !== null)
 
   return {
+    loading,
+    errors,
     user,
     accessToken,
     isAuthenticated,
-    loading,
     signIn,
     logOut,
     loadSession,

@@ -8,6 +8,7 @@ import Products from '@/pages/Products.vue'
 import Login from '@/pages/auth/Login.vue'
 import Register from '@/pages/auth/Register.vue'
 import Forgot from '@/pages/auth/Forgot.vue'
+import Recovery from '@/pages/auth/Recovery.vue'
 
 import NotFound from '@/pages/NotFound.vue'
 
@@ -36,6 +37,11 @@ const routes = [
         path: 'forgot',
         name: 'forgot',
         component: Forgot,
+      },
+      {
+        path: 'recovery',
+        name: 'recovery',
+        component: Recovery,
       },
     ],
   },

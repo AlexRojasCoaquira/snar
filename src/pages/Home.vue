@@ -35,14 +35,7 @@
       @edit="openModal"
       @delete="removeUser"
     />
-    <Modal
-      :isEdit="isEdit"
-      :user="user"
-      :show="showModal"
-      @submit="onSubmit"
-      @close="resetUser"
-      :loading="loading"
-    />
+    <Modal :isEdit="isEdit" :user="user" :show="showModal" @close="resetUser" />
     <Paginate
       v-if="paginate.totalPages > 0"
       :page-count="paginate.totalPages"
@@ -63,22 +56,28 @@
 </template>
 
 <script setup lang="ts">
-import { reactive, ref, watch } from 'vue'
-import { useUsers } from '@/composables/useUsers'
-import Button from '@/components/base/Button.vue'
-import type { User, UserWithId } from '@/types'
-import Modal from '@/components/Modal.vue'
-import UserList from '@/components/UserList.vue'
+import { onMounted, reactive, ref, watch } from 'vue'
 // @ts-ignore
 import Paginate from 'vuejs-paginate-next'
-import Filters from '@/components/Filters.vue'
+
+import { useUsers } from '@/composables/useUsers'
+import { useToast } from '@/composables/useToast'
+
+import type { User, UserWithId } from '@/types'
+
 import { usePaginate } from '@/store/paginate'
 import { useFilters } from '@/store/filters'
+
+import Button from '@/components/base/Button.vue'
+import Modal from '@/components/Modal.vue'
+import UserList from '@/components/UserList.vue'
+import Filters from '@/components/Filters.vue'
 
 const { paginate, setTotalPages, setPage } = usePaginate()
 const { filters, setSearch } = useFilters()
 
-const { users, addUser, editUser, deleteUser, loading, load, errors, getAllUsers } = useUsers()
+const { users, deleteUser, loading, load, errors, getAllUsers } = useUsers()
+const { successToast, errorToast } = useToast()
 
 const defaultUser = {
   firstname: '',
@@ -90,15 +89,6 @@ const defaultUser = {
 const showModal = ref(false)
 const user = reactive<User | UserWithId>({ ...defaultUser })
 const isEdit = ref(false)
-
-const onSubmit = async (userData: User | UserWithId) => {
-  if (isEdit.value && 'id' in userData) {
-    await editUser(userData)
-  } else {
-    await addUser(userData as User)
-  }
-  resetUser()
-}
 
 const resetUser = () => {
   // user = { ...defaultUser }
@@ -126,8 +116,13 @@ const handlePageChange = (page: number) => {
   getAllUsers()
 }
 
-const removeUser = async (id: number) => {
-  await deleteUser(id)
+const removeUser = async (id: string) => {
+  const ok = await deleteUser(id)
+  if (ok) {
+    successToast('Usuario eliminado correctamente 🗑️')
+  } else {
+    errorToast('Error al eliminar el usuario ❌')
+  }
   setPage(1)
   getAllUsers()
 }
@@ -140,6 +135,10 @@ watch(
     getAllUsers()
   },
 )
+
+onMounted(() => {
+  getAllUsers()
+})
 </script>
 
 <style scoped></style>

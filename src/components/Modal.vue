@@ -21,6 +21,8 @@
           required
           :error="errors.firstname"
           v-sanitize="'letters'"
+          :loading="loading"
+          :disabled="loading"
           max="50"
         />
         <Input
@@ -32,6 +34,8 @@
           required
           :error="errors.lastname"
           v-sanitize="'letters'"
+          :loading="loading"
+          :disabled="loading"
           max="50"
         />
         <Input
@@ -39,10 +43,12 @@
           type="email"
           placeholder="Ingrese el correo"
           v-bind="emailAttrs"
-          v-model="email"
+          v-model.trim="email"
           required
           :error="errors.email"
           v-sanitize="'email'"
+          :loading="loading"
+          :disabled="loading"
           max="70"
         />
         <Input
@@ -54,6 +60,20 @@
           v-bind="phoneAttrs"
           required
           :error="errors.phone"
+          :loading="loading"
+          :disabled="loading"
+          max="9"
+        />
+        <Input
+          id="birthdate"
+          type="date"
+          placeholder="Ingrese la fecha de nacimiento"
+          v-model="birthdate"
+          v-bind="birthdateAttrs"
+          required
+          :error="errors.birthdate"
+          :loading="loading"
+          :disabled="loading"
           max="9"
         />
         <Button type="submit" size="md" variant="primary" class="w-full mt-5" :disabled="loading">
@@ -65,21 +85,33 @@
 </template>
 
 <script setup lang="ts">
-import { watch } from 'vue'
-import Button from '@/components/base/Button.vue'
-import Input from '@/components/base/Input.vue'
-import type { User, UserWithId } from '@/types'
+import { ref, watch } from 'vue'
 import { useForm, configure } from 'vee-validate'
 import * as yup from 'yup'
+
+import { useUsers } from '@/composables/useUsers'
+import { useAuth } from '@/composables/useAuth'
+import { useToast } from '@/composables/useToast'
+
+import type { User, UserWithId } from '@/types'
+
+import { generateRandomPassword } from '@/utils'
+
+import Button from '@/components/base/Button.vue'
+import Input from '@/components/base/Input.vue'
 
 interface ModalProps {
   user: User | UserWithId
   show: boolean
   isEdit: boolean
-  loading?: boolean
 }
 
 const props = defineProps<ModalProps>()
+const { addUser, editUser, load, errors: userErr } = useUsers()
+const { signUp } = useAuth()
+const { successToast, errorToast } = useToast()
+const loading = ref(false)
+
 configure({
   validateOnBlur: true, // valida al salir del campo
   validateOnChange: true, // valida al cambiar el valor
@@ -98,9 +130,10 @@ const schema = yup.object({
     .string()
     .matches(/^[0-9]{9}$/, 'Debe tener 9 dígitos')
     .required(),
+  birthdate: yup.date().required('La fecha de nacimiento es obligatoria'),
 })
 
-const { values, setValues, handleSubmit, resetForm, errors, defineField } = useForm<any>({
+const { setValues, handleSubmit, resetForm, errors, defineField } = useForm<any>({
   validationSchema: schema,
   initialValues: { ...props.user },
 })
@@ -109,6 +142,7 @@ const [firstname, firstnameAttrs] = defineField<string>('firstname')
 const [lastname, lastnameAttrs] = defineField<string>('lastname')
 const [email, emailAttrs] = defineField<string>('email')
 const [phone, phoneAttrs] = defineField<string>('phone')
+const [birthdate, birthdateAttrs] = defineField<string>('birthdate')
 
 watch(
   () => props.user,
@@ -126,8 +160,56 @@ const closeModal = () => {
   resetForm()
 }
 
-const onSubmit = handleSubmit((values) => {
-  emit('submit', { ...values })
+const onSubmit = handleSubmit(async (values) => {
+  console.log('Submitting user data:', values)
+
+  loading.value = true
+  if (props.isEdit && 'id' in values) {
+    try {
+      const ok = await editUser({
+        id: values.id,
+        firstname: values.firstname,
+        lastname: values.lastname,
+        phone: values.phone,
+        birthdate: values.birthdate,
+      })
+      if (ok) {
+        successToast('Usuario editado correctamente 🎉')
+        emit('close')
+      }
+    } catch (error) {
+      console.log('Error during sign up:', error)
+      errorToast('Error al crear el usuario ❌')
+    } finally {
+      loading.value = false
+    }
+  } else {
+    const { email } = values
+    if (!email) return
+    const password = generateRandomPassword()
+    try {
+      const res = await signUp({ email, password })
+      if (res?.id) {
+        console.log('User signed up:', res.id)
+        const response = await addUser({
+          id: res.id,
+          firstname: values.firstname,
+          lastname: values.lastname,
+          phone: values.phone,
+          birthdate: values.birthdate,
+        })
+        console.log('Add user response:', response)
+        successToast('Usuario creado correctamente 🎉')
+        emit('close')
+      }
+    } catch (error) {
+      console.log('Error during sign up:', error)
+      errorToast('Error al crear el usuario ❌')
+    } finally {
+      loading.value = false
+    }
+  }
+  // emit('submit', { ...values })
   resetForm()
 })
 </script>

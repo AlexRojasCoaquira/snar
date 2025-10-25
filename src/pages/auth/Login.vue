@@ -33,7 +33,8 @@
       v-sanitize="'alphanumeric'"
       max="40"
     />
-    <Button type="submit" variant="primary" size="md" class="w-full mt-5">
+    <p class="text-sm font-medium text-red-400 mt-5">{{ errors }}</p>
+    <Button type="submit" variant="primary" size="md" class="w-full mt-2">
       {{ loading ? 'Cargando' : 'Iniciar sesión' }}
     </Button>
     <RouterLink to="/auth/forgot">
@@ -58,7 +59,7 @@ const defaultAuth: Login = {
   password: 'alexrojas123',
 }
 const authStore = useAuth()
-const { loading } = storeToRefs(authStore)
+const { loading, errors } = storeToRefs(authStore)
 const auth = reactive<Login>({ ...defaultAuth })
 
 const router = useRouter()

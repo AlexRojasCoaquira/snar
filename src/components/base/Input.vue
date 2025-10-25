@@ -38,7 +38,7 @@ import { computed, ref } from 'vue'
 
 interface InputProps {
   id: string
-  type?: 'text' | 'email' | 'number' | 'password'
+  type?: 'text' | 'email' | 'number' | 'password' | 'date'
   disabled?: boolean
   required?: boolean
   error?: string

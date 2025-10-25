@@ -1,5 +1,73 @@
-import type { User, UserWithId } from '@/types'
+import type { UserWithId } from '@/types'
 import { supabase } from '@/lib/supabase'
+
+export const getUser = async ({
+  perPage,
+  page,
+  search,
+}: {
+  perPage: number
+  page: number
+  search: string
+}): Promise<{
+  data: UserWithId[]
+  totalItems: number | null
+  totalPages: number
+}> => {
+  try {
+    const query = supabase
+      .from('users_all')
+      .select('*', { count: 'exact' })
+      .order('id', { ascending: false })
+      .range((page - 1) * perPage, page * perPage - 1)
+
+    if (search && search.trim() !== '') {
+      query.or(`email.ilike.%${search}%,firstname.ilike.%${search}%,lastname.ilike.%${search}%`)
+    }
+
+    const { data, error, count } = await query
+    console.log('data', data)
+    if (error) throw error
+    return { data, totalItems: count, totalPages: count ? Math.ceil(count / perPage) : 0 }
+  } catch (error) {
+    throw new Error((error as Error).message)
+  }
+}
+
+export const createUser = async (user: UserWithId) => {
+  const { data, error } = await supabase.from('users').insert([user]).select()
+  if (error) throw error
+  return data
+}
+
+export const signInWithEmail = async ({ email }: { email: string }) => {
+  try {
+    const { data, error } = await supabase.auth.admin.createUser({
+      email,
+      email_confirm: false,
+    })
+    if (error) throw error
+    return data
+  } catch (error) {
+    throw new Error((error as Error).message)
+  }
+}
+
+export const removeUser = async (id: string): Promise<boolean> => {
+  const { error } = await supabase.from('users').delete().eq('id', id)
+  if (error) {
+    console.error('Error al eliminar usuario:', error.message)
+    return false
+  }
+
+  return true
+}
+
+export const updateUser = async (user: UserWithId) => {
+  const { data, error } = await supabase.from('users').update(user).eq('id', user.id).select()
+  if (error) throw error
+  return data
+}
 
 // const headers = {
 //   apikey: API.SUPABASE_KEY,
@@ -15,80 +83,6 @@ import { supabase } from '@/lib/supabase'
 //     headers,
 //   }).then((res) => res.json())
 // }
-
-export const getUser = async ({
-  perPage,
-  page,
-  search,
-}: {
-  perPage: number
-  page: number
-  search: string
-}) => {
-  const query = supabase
-    .from('users')
-    .select('*', { count: 'exact' })
-    .order('id', { ascending: false })
-    .range((page - 1) * perPage, page * perPage - 1)
-
-  if (search && search.trim() !== '') {
-    query.or(`email.ilike.%${search}%,firstname.ilike.%${search}%,lastname.ilike.%${search}%`)
-  }
-
-  const { data, error, count } = await query
-
-  if (error) throw error
-  return { data, totalItems: count, totalPages: count ? Math.ceil(count / perPage) : 0 }
-}
-// .or(`email.ilike.%${'cirilo'}%,firstname.ilike.%${'cirilo'}%,lastname.ilike.%${'cirilo'}%`)
-
-// export const createUser = async (user: User) => {
-//   const url = `${API.SUPABASE}/rest/v1/users`
-//   return fetch(url, {
-//     method: 'POST',
-//     headers,
-//     body: JSON.stringify(user),
-//   }).then(async (res) => {
-//     if (!res.ok) {
-//       const error = await res.text()
-//       throw new Error(error)
-//     }
-//     console.log('ressss', res)
-//     return res.json()
-//   })
-// }
-
-export const createUser = async (user: User) => {
-  const { data, error } = await supabase.from('users').insert([user]).select()
-  if (error) {
-    console.error('Error al crear usuario:', error.message)
-    throw error
-  }
-  return data
-}
-
-// export const removeUser = (id: number) => {
-//   console.log('id', id)
-//   const url = `${API.SUPABASE}/rest/v1/users?id=eq.${id}`
-//   return fetch(url, { method: 'DELETE', headers }).then(async (res) => {
-//     if (!res.ok) {
-//       const error = await res.text()
-//       throw new Error(error)
-//     }
-//     console.log('ressss', res)
-//     return true
-//   })
-// }
-
-export const removeUser = async (id: number): Promise<boolean> => {
-  const { error } = await supabase.from('users').delete().eq('id', id)
-  if (error) {
-    console.error('Error al eliminar usuario:', error.message)
-    return false
-  }
-
-  return true
-}
 
 // export const updateUser = (user: UserWithId) => {
 //   const url = `${API.SUPABASE}/rest/v1/users?id=eq.${user.id}`
@@ -111,8 +105,31 @@ export const removeUser = async (id: number): Promise<boolean> => {
 //   })
 // }
 
-export const updateUser = async (user: UserWithId) => {
-  const { data, error } = await supabase.from('users').update(user).eq('id', user.id).select()
-  console.log('data update', data)
-  return data
-}
+// export const removeUser = (id: number) => {
+//   console.log('id', id)
+//   const url = `${API.SUPABASE}/rest/v1/users?id=eq.${id}`
+//   return fetch(url, { method: 'DELETE', headers }).then(async (res) => {
+//     if (!res.ok) {
+//       const error = await res.text()
+//       throw new Error(error)
+//     }
+//     console.log('ressss', res)
+//     return true
+//   })
+// }
+
+// export const createUser = async (user: User) => {
+//   const url = `${API.SUPABASE}/rest/v1/users`
+//   return fetch(url, {
+//     method: 'POST',
+//     headers,
+//     body: JSON.stringify(user),
+//   }).then(async (res) => {
+//     if (!res.ok) {
+//       const error = await res.text()
+//       throw new Error(error)
+//     }
+//     console.log('ressss', res)
+//     return res.json()
+//   })
+// }
