@@ -1,7 +1,7 @@
 import { supabase } from '@/lib/supabase'
 import type { RealtimeChannel, RealtimePostgresChangesPayload } from '@supabase/supabase-js'
 
-export const useRealtime = <T extends { id: number }>(
+export const useRealtime = <T extends { id: string }>(
   tableName: string,
   items: T[],
   onChange?: (payload: RealtimePostgresChangesPayload<T>) => void,
