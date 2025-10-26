@@ -1,17 +1,9 @@
-import { getAllProducts } from '../services/products'
 import { ref } from 'vue'
-
-interface Products {
-  id: number
-  name: string
-  description: string
-  price: number
-  stock: number
-  image: string
-}
+import type { Product } from '@/types'
+import { getAllProducts, addProduct } from '../services/products'
 
 export const useProducts = () => {
-  const products = ref<Products[]>([])
+  const products = ref<Product[]>([])
   const loading = ref(false)
   const error = ref<string | null>(null)
 
@@ -27,10 +19,26 @@ export const useProducts = () => {
     }
   }
 
+  const addProductItem = async (product: Product) => {
+    loading.value = true
+    try {
+      const data = await addProduct(product)
+      if (data) {
+        products.value.push(data[0])
+      }
+      return true
+    } catch (err) {
+      error.value = (err as Error).message
+    } finally {
+      loading.value = false
+    }
+  }
+
   return {
     products,
     loading,
     error,
     fetchProducts,
+    addProductItem,
   }
 }
