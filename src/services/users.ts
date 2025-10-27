@@ -18,7 +18,7 @@ export const getUser = async ({
     const query = supabase
       .from('users_all')
       .select('*', { count: 'exact' })
-      .order('id', { ascending: false })
+      .order('created_at', { ascending: false })
       .range((page - 1) * perPage, page * perPage - 1)
 
     if (search && search.trim() !== '') {

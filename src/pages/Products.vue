@@ -20,9 +20,19 @@
         <path d="M12 5v14" />
       </svg>
     </article>
-    <CardProduct v-for="product in products" :key="product.id" :product="product" />
+    <CardProduct
+      v-for="product in products"
+      :key="product.id"
+      :product="product"
+      @delete="deleteProduct"
+    />
   </div>
-  <ModalProduct :product="product" :isEdit="false" :show="showModal" @close="resetProduct" />
+  <ModalProduct
+    :product="productSelected"
+    :isEdit="false"
+    :show="showModal"
+    @close="resetProduct"
+  />
 </template>
 
 <script setup lang="ts">
@@ -39,20 +49,25 @@ const defaultProduct: Product = {
   image: '',
 }
 
-const product = ref<Product>({ ...defaultProduct })
+const productSelected = ref<Product>({ ...defaultProduct })
 const showModal = ref(false)
 const isEdit = ref(false)
 
-const { products, loading, fetchProducts } = useProducts()
+const { products, loading, fetchProducts, removeProduct } = useProducts()
 
 const openModal = () => {
   showModal.value = true
 }
 
+const deleteProduct = async ({ image, id }: { id: number; image: string }) => {
+  await removeProduct({ id, image })
+  fetchProducts()
+}
+
 const resetProduct = () => {
-  product.value = { ...defaultProduct }
+  productSelected.value = { ...defaultProduct }
   showModal.value = false
-  Object.assign(product, { ...defaultProduct })
+  // Object.assign(product, { ...defaultProduct })
   isEdit.value = false
 }
 

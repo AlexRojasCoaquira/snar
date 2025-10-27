@@ -1,11 +1,11 @@
 import { supabase } from '@/lib/supabase'
-import type { Product } from '@/types'
+import type { Product, ProductWithId } from '@/types'
 
-export const getAllProducts = async (): Promise<Product[]> => {
+export const getAllProducts = async (): Promise<ProductWithId[]> => {
   const { data, error } = await supabase
     .from('products')
     .select('*')
-    .order('id', { ascending: true })
+    .order('id', { ascending: false })
   if (error) throw error
   return data
 }
@@ -23,12 +23,9 @@ export const addProduct = async (product: Product) => {
 
 export const uploadImage = async (file: File) => {
   try {
-    const fileName = `${Date.now()}_${file.name}`
-    const { data, error } = await supabase.storage.from('snar-images').upload(fileName, file)
+    const fileName = `products/${Date.now()}_${file.name}`
+    const { error } = await supabase.storage.from('snar-images').upload(fileName, file)
     if (error) throw error
-
-    console.log('Image uploaded successfully:', data)
-
     const { data: publicUrlData } = supabase.storage.from('snar-images').getPublicUrl(fileName)
 
     return publicUrlData.publicUrl
@@ -45,8 +42,22 @@ export const uploadImage = async (file: File) => {
 //   return data
 // }
 
-// export const deleteProduct = async (id: number) => {
-//   const { data, error } = await supabase.from('products').delete().eq('id', id)
-//   if (error) throw error
-//   return data
-// }
+export const deleteProduct = async (id: number) => {
+  try {
+    const { data, error } = await supabase.from('products').delete().eq('id', id)
+    if (error) throw error
+    return data
+  } catch (error) {
+    throw new Error('Error al eliminar producto' + (error as Error).message)
+  }
+}
+
+export const removeImage = async (image: string) => {
+  try {
+    const { error } = await supabase.storage.from('snar-images').remove([`products/${image}`])
+    console.log('pasó')
+    if (error) throw new Error(error.message)
+  } catch (err) {
+    throw new Error('Error al eliminar la imagen:' + (err as Error).message)
+  }
+}

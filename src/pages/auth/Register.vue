@@ -95,11 +95,11 @@ const submit = async () => {
     email: auth.email,
     password: auth.password,
   })
-  console.log('Registration response:', res.user)
-  if (res.user) {
+  console.log('Registration response:', res)
+  if (res) {
     const response = await addUser(
       {
-        id: res.user.id,
+        id: res.id,
         firstname: auth.firstname,
         lastname: auth.lastname,
         phone: auth.phone,

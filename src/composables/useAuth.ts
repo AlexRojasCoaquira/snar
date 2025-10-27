@@ -52,6 +52,7 @@ export const useAuth = () => {
 
   const updateUserPassword = async ({ password, email }: { password: string; email: string }) => {
     const { data, error } = await supabase.auth.updateUser({ password, email })
+    if (error) throw error
     console.log('data', data)
     return data
   }

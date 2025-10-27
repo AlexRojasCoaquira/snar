@@ -91,7 +91,6 @@ const user = reactive<User | UserWithId>({ ...defaultUser })
 const isEdit = ref(false)
 
 const resetUser = () => {
-  // user = { ...defaultUser }
   showModal.value = false
   Object.assign(user, { ...defaultUser })
   isEdit.value = false

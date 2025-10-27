@@ -86,7 +86,7 @@
 
 <script setup lang="ts">
 import { ref, watch } from 'vue'
-import { useForm, configure } from 'vee-validate'
+import { useForm } from 'vee-validate'
 import * as yup from 'yup'
 
 import { useUsers } from '@/composables/useUsers'
@@ -112,12 +112,6 @@ const { signUp } = useAuth()
 const { successToast, errorToast } = useToast()
 const loading = ref(false)
 
-configure({
-  validateOnBlur: true, // valida al salir del campo
-  validateOnChange: true, // valida al cambiar el valor
-  validateOnInput: true, // valida mientras escribe
-  validateOnModelUpdate: true,
-})
 const schema = yup.object({
   firstname: yup
     .string()
@@ -161,8 +155,6 @@ const closeModal = () => {
 }
 
 const onSubmit = handleSubmit(async (values) => {
-  console.log('Submitting user data:', values)
-
   loading.value = true
   if (props.isEdit && 'id' in values) {
     try {
@@ -191,14 +183,13 @@ const onSubmit = handleSubmit(async (values) => {
       const res = await signUp({ email, password })
       if (res?.id) {
         console.log('User signed up:', res.id)
-        const response = await addUser({
+        await addUser({
           id: res.id,
           firstname: values.firstname,
           lastname: values.lastname,
           phone: values.phone,
           birthdate: values.birthdate,
         })
-        console.log('Add user response:', response)
         successToast('Usuario creado correctamente 🎉')
         emit('close')
       }

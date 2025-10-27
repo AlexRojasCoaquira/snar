@@ -6,15 +6,15 @@ import { useRealtime } from './useRealtime'
 import { useFilters } from '@/store/filters'
 import { usePaginate } from '@/store/paginate'
 
+const users = reactive<UserWithId[]>([])
+const { subscribe, unsubscribe } = useRealtime<UserWithId>('users', users)
+const loading = ref(false)
+const load = ref(false)
+const errors = ref('')
+
 export const useUsers = () => {
   const { filters } = useFilters()
   const { paginate, setTotalPages, setPage } = usePaginate()
-
-  const users = reactive<UserWithId[]>([])
-  const { subscribe, unsubscribe } = useRealtime<UserWithId>('users', users)
-  const loading = ref(false)
-  const load = ref(false)
-  const errors = ref('')
 
   const getAllUsers = async () => {
     try {

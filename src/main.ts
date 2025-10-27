@@ -6,9 +6,12 @@ import directives from './directives'
 import { createPinia } from 'pinia'
 import { router } from './routes'
 import Toast from 'vue3-toastify'
+import { setupVeeValidate } from '@/plugins/vee-validate'
 import 'vue3-toastify/dist/index.css'
 const app = createApp(App)
 const pinia = createPinia()
+
+setupVeeValidate()
 
 app.use(pinia)
 app.use(router)

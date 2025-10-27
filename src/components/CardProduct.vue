@@ -11,22 +11,37 @@
     <p
       class="absolute right-2 top-2 bg-gray-200/80 text-md font-medium text-gray-800 rounded-2xl px-2 backdrop-blur-sm border border-white/20"
     >
-      {{ product.price }}
+      S/ {{ product.price }}
     </p>
     <div class="hidden group-hover:block absolute inset-0 hover:bg-gray-700/80 rounded p-4">
       <div class="">
         {{ product.description }}
       </div>
+      <span @click="handleDelete">Eliminar</span>
     </div>
   </article>
 </template>
 
 <script setup lang="ts">
-import type { Product } from '@/types'
+import type { ProductWithId } from '@/types'
 
-defineProps<{
-  product: Product
+const props = defineProps<{
+  product: ProductWithId
 }>()
+const emit = defineEmits<{
+  (
+    e: 'delete',
+    payload: {
+      id: number
+      image: string
+    },
+  ): void
+}>()
+
+const handleDelete = () => {
+  const { image, id } = props.product
+  emit('delete', { image, id })
+}
 </script>
 
 <style scoped></style>

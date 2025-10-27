@@ -43,7 +43,7 @@ interface InputProps {
   required?: boolean
   error?: string
   placeholder?: string
-  modelValue?: string
+  modelValue?: string | number
   max?: string
   variant?: 'primary' | 'secondary'
   inputClass?: string

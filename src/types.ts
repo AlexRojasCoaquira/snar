@@ -26,9 +26,16 @@ export interface Register {
 }
 
 export interface Product {
-  id?: number
   name: string
   price: number
   description: string
   image: string
+}
+
+export interface ProductWithId extends Product {
+  id: number
+}
+
+export interface ProductForm extends Product {
+  fileImg: File | null
 }

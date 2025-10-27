@@ -21,7 +21,6 @@
           required
           :error="errors.name"
           v-sanitize="'letters'"
-          :loading="loading"
           :disabled="loading"
           max="50"
         />
@@ -33,8 +32,7 @@
           v-bind="priceAttrs"
           required
           :error="errors.price"
-          v-sanitize="'letters'"
-          :loading="loading"
+          v-sanitize="'numeric'"
           :disabled="loading"
           max="50"
         />
@@ -47,11 +45,18 @@
           required
           :error="errors.description"
           v-sanitize="'description'"
-          :loading="loading"
           :disabled="loading"
           max="70"
         />
-
+        <InputFile
+          v-model="fileImg"
+          v-bind="fileImgAttrs"
+          :error="errors.fileImg"
+          placeholder="Seleccione una imagen"
+          id="upload"
+          :disabled="loading"
+          required
+        ></InputFile>
         <Button type="submit" size="md" variant="primary" class="w-full mt-5" :disabled="loading">
           {{ loading ? 'Cargando...' : isEdit ? 'Editar' : 'Crear' }}
         </Button>
@@ -62,7 +67,7 @@
 
 <script setup lang="ts">
 import { ref, watch } from 'vue'
-import { useForm, configure } from 'vee-validate'
+import { useForm } from 'vee-validate'
 import * as yup from 'yup'
 
 import { useToast } from '@/composables/useToast'
@@ -72,6 +77,9 @@ import type { Product } from '@/types'
 
 import Button from '@/components/base/Button.vue'
 import Input from '@/components/base/Input.vue'
+import InputFile from '@/components/base/InputFile.vue'
+
+import type { ProductForm } from '@/types'
 
 interface ModalProps {
   product: Product
@@ -85,30 +93,31 @@ const { addProductItem } = useProducts()
 
 const loading = ref(false)
 
-configure({
-  validateOnBlur: true, // valida al salir del campo
-  validateOnChange: true, // valida al cambiar el valor
-  validateOnInput: true, // valida mientras escribe
-  validateOnModelUpdate: true,
-})
 const schema = yup.object({
   name: yup
     .string()
-    .max(50, 'asd')
-    .matches(/^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]+$/, 'Solo letras')
-    .required('El nombre es requerido'),
-  price: yup.string().required('El apellido es obligatorio'),
+    .max(50, 'Cantidad de caracteres excedidas')
+    .matches(/^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]+$/, 'Solo puede incluir letras')
+    .required('Requerido'),
+  price: yup
+    .number()
+    .transform((value, originalValue) => (originalValue === '' ? null : value))
+    .required('Requerido')
+    .moreThan(0, 'El precio debe ser mayor a cero')
+    .max(1000, 'El precio no debe exceder a 1000'),
   description: yup.string().required('Requerido'),
+  fileImg: yup.mixed<File>().required('Requerido'),
 })
 
-const { setValues, handleSubmit, resetForm, errors, defineField } = useForm({
+const { setValues, handleSubmit, resetForm, errors, defineField } = useForm<ProductForm>({
   validationSchema: schema,
-  initialValues: { ...props.product },
+  initialValues: { ...props.product, fileImg: null },
 })
 
 const [name, nameAttrs] = defineField('name')
 const [price, priceAttrs] = defineField('price')
 const [description, descriptionAttrs] = defineField('description')
+const [fileImg, fileImgAttrs] = defineField('fileImg')
 
 watch(
   () => props.product,
@@ -149,13 +158,16 @@ const onSubmit = handleSubmit(async (values) => {
     // }
   } else {
     try {
-      const ok = await addProductItem({
+      console.log('values', values)
+      if (values.fileImg) {
+      }
+      await addProductItem({
         name: values.name,
         price: Number(values.price),
         description: values.description,
-        image: values.image || '',
+        fileImg: values.fileImg,
+        image: '',
       })
-      if (!ok) throw new Error('Error adding product')
       successToast('producto creado correctamente 🎉')
       emit('close')
     } catch (error) {
@@ -165,7 +177,6 @@ const onSubmit = handleSubmit(async (values) => {
       loading.value = false
     }
   }
-  // emit('submit', { ...values })
   resetForm()
 })
 </script>
