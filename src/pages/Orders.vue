@@ -66,10 +66,9 @@ const { filters, setSearch } = useFilters()
 const { orders, fetchOrders, loading, errors } = useOrders()
 
 const onFilter = (term: string) => {
-  console.log('term', term)
-  // setSearch(term)
-  // setPage(1)
-  // setTotalPages(0)
+  setSearch(term)
+  setPage(1)
+  setTotalPages(0)
 }
 
 const handlePageChange = (page: number) => {
@@ -79,7 +78,6 @@ const handlePageChange = (page: number) => {
 watch(
   () => filters.search,
   () => {
-    console.log('da')
     setPage(1)
     setTotalPages(0)
     fetchOrders()

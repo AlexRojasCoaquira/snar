@@ -55,7 +55,6 @@ export const deleteProduct = async (id: number) => {
 export const removeImage = async (image: string) => {
   try {
     const { error } = await supabase.storage.from('snar-images').remove([`products/${image}`])
-    console.log('pasó')
     if (error) throw new Error(error.message)
   } catch (err) {
     throw new Error('Error al eliminar la imagen:' + (err as Error).message)

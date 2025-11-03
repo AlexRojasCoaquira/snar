@@ -41,7 +41,6 @@ watch(
   (newValue) => {
     clearTimeout(debounceTimeout)
     debounceTimeout = window.setTimeout(() => {
-      console.log('hola')
       setSearch(newValue.search)
     }, 500)
   },

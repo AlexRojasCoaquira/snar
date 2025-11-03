@@ -80,7 +80,6 @@ const selectedFile = ref<File | null>(null)
 const handleFile = (e: Event) => {
   const target = e.target as HTMLInputElement
   const file = target.files?.[0]
-  console.log('file', file)
   if (!file) return
 
   if (!ALLOWED_TYPES.includes(file.type)) {

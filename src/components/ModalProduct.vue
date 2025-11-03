@@ -154,8 +154,6 @@ const closeModal = () => {
 }
 
 const onSubmit = handleSubmit(async (values) => {
-  console.log('Submitting user data:', values)
-
   loading.value = true
   if (props.isEdit && 'id' in values) {
     // try {
@@ -177,7 +175,6 @@ const onSubmit = handleSubmit(async (values) => {
     // }
   } else {
     try {
-      console.log('values', values)
       if (values.fileImg) {
       }
       await addProductItem({
