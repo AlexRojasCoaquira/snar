@@ -37,9 +37,21 @@
           max="50"
         />
         <Input
+          id="stock"
+          type="number"
+          placeholder="Ingrese el stock"
+          v-model="stock"
+          v-bind="stockAttrs"
+          required
+          :error="errors.stock"
+          v-sanitize="'numeric'"
+          :disabled="loading"
+          max="50"
+        />
+        <Input
           id="description"
           type="text"
-          placeholder="Ingrese la description"
+          placeholder="Ingrese la descripción"
           v-bind="descriptionAttrs"
           v-model.trim="description"
           required
@@ -105,6 +117,12 @@ const schema = yup.object({
     .required('Requerido')
     .moreThan(0, 'El precio debe ser mayor a cero')
     .max(1000, 'El precio no debe exceder a 1000'),
+  stock: yup
+    .number()
+    .transform((value, originalValue) => (originalValue === '' ? null : value))
+    .required('Requerido')
+    .moreThan(0, 'El stock debe ser mayor a cero')
+    .max(100, 'El stock no debe exceder a 100'),
   description: yup.string().required('Requerido'),
   fileImg: yup.mixed<File>().required('Requerido'),
 })
@@ -116,6 +134,7 @@ const { setValues, handleSubmit, resetForm, errors, defineField } = useForm<Prod
 
 const [name, nameAttrs] = defineField('name')
 const [price, priceAttrs] = defineField('price')
+const [stock, stockAttrs] = defineField('stock')
 const [description, descriptionAttrs] = defineField('description')
 const [fileImg, fileImgAttrs] = defineField('fileImg')
 
@@ -164,6 +183,7 @@ const onSubmit = handleSubmit(async (values) => {
       await addProductItem({
         name: values.name,
         price: Number(values.price),
+        stock: Number(values.stock),
         description: values.description,
         fileImg: values.fileImg,
         image: '',

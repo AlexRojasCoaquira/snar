@@ -3,7 +3,7 @@
     <Input
       id="search"
       type="text"
-      placeholder="Buscar por nombre, apellido o email"
+      :placeholder="label"
       v-model="filtersLocal.search"
       variant="primary"
       class="relative"
@@ -20,6 +20,13 @@ import { useFilters } from '@/store/filters'
 
 const { setSearch, resetFilters } = useFilters()
 
+interface Props {
+  label?: string
+}
+withDefaults(defineProps<Props>(), {
+  label: 'Buscar por nombre, apellido o email',
+})
+
 interface FiltersProps {
   search: string
 }
@@ -34,6 +41,7 @@ watch(
   (newValue) => {
     clearTimeout(debounceTimeout)
     debounceTimeout = window.setTimeout(() => {
+      console.log('hola')
       setSearch(newValue.search)
     }, 500)
   },

@@ -87,7 +87,7 @@
 <script setup lang="ts">
 import { ref, watch } from 'vue'
 import { useForm } from 'vee-validate'
-import * as yup from 'yup'
+import { schema } from '@/schemas/userSchema'
 
 import { useUsers } from '@/composables/useUsers'
 import { useAuth } from '@/composables/useAuth'
@@ -111,21 +111,6 @@ const { addUser, editUser, load, errors: userErr } = useUsers()
 const { signUp } = useAuth()
 const { successToast, errorToast } = useToast()
 const loading = ref(false)
-
-const schema = yup.object({
-  firstname: yup
-    .string()
-    .max(50, 'asd')
-    .matches(/^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]+$/, 'Solo letras')
-    .required('El nombre es requerido'),
-  lastname: yup.string().required('El apellido es obligatorio'),
-  email: yup.string().email().required('Requerido'),
-  phone: yup
-    .string()
-    .matches(/^[0-9]{9}$/, 'Debe tener 9 dígitos')
-    .required(),
-  birthdate: yup.date().required('La fecha de nacimiento es obligatoria'),
-})
 
 const { setValues, handleSubmit, resetForm, errors, defineField } = useForm<any>({
   validationSchema: schema,

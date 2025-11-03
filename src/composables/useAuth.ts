@@ -20,25 +20,6 @@ export const useAuth = () => {
     }
   }
 
-  // const signIn = async (authData: Login) => {
-  //   try {
-  //     const { email, password } = authData
-  //     if (email === '' || password === '') {
-  //       errors.value = 'Email y contraseña son obligatorios'
-  //       throw new Error('Email y contraseña son obligatorios.')
-  //     }
-  //     loading.value = true
-  //     const res = await signInWithPassword(authData)
-  //     console.log(res)
-  //     return res
-  //   } catch (error) {
-  //     console.log('error', error)
-  //     errors.value = (error as Error).message || 'Error al iniciar sesión'
-  //   } finally {
-  //     loading.value = false
-  //   }
-  // }
-
   const resetPassword = async (email: string) => {
     try {
       const { data, error } = await supabase.auth.resetPasswordForEmail(email)

@@ -76,7 +76,7 @@ import Filters from '@/components/Filters.vue'
 const { paginate, setTotalPages, setPage } = usePaginate()
 const { filters, setSearch } = useFilters()
 
-const { users, deleteUser, loading, load, errors, getAllUsers } = useUsers()
+const { users, deleteUser, load, errors, getAllUsers } = useUsers()
 const { successToast, errorToast } = useToast()
 
 const defaultUser = {
@@ -139,5 +139,3 @@ onMounted(() => {
   getAllUsers()
 })
 </script>
-
-<style scoped></style>

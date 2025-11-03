@@ -30,6 +30,7 @@ export interface Product {
   price: number
   description: string
   image: string
+  stock: number
 }
 
 export interface ProductWithId extends Product {
@@ -38,4 +39,12 @@ export interface ProductWithId extends Product {
 
 export interface ProductForm extends Product {
   fileImg: File | null
+}
+
+export interface Order {
+  id: number
+  user_id: string
+  total: number
+  status: string
+  created_at: string
 }

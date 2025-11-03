@@ -1,4 +1,4 @@
-import { reactive } from 'vue'
+import { computed, reactive } from 'vue'
 import { defineStore } from 'pinia'
 
 const PER_PAGE = 5
@@ -16,9 +16,16 @@ export const usePaginate = defineStore('paginate', () => {
   const setTotalPages = (totalPages: number) => {
     paginate.totalPages = totalPages
   }
+
+  const start = computed(() => (paginate.page - 1) * paginate.perPage)
+  const end = computed(() => start.value + paginate.perPage - 1)
   return {
     setTotalPages,
     setPage,
     paginate,
+    range: {
+      start,
+      end,
+    },
   }
 })
